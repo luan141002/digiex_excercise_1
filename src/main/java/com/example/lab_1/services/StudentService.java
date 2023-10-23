@@ -5,9 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface StudentService {
-    public Student addStudent(Student newStudent);
-    public Student updateStudent(Student updatedStudent);
-    public void deleteStudent(String id);
-    public Double getStudentDetail(String id);
-    public Page<Student> findByClassAndSearchKeyWord(String id, String searchKey, Pageable sortedBy);
+    Student addStudent(Student newStudent);
+    Student updateStudent(Student updatedStudent);
+    void deleteStudent(String id);
+    Double getStudentDetail(String id);
+    Page<Student> findByClassAndSearchKeyWord(String id, String searchKey, Integer sortedBy);
+
 }

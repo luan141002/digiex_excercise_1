@@ -47,7 +47,8 @@ public class SubjectServiceImp implements SubjectService{
                     ).toList();
             if(updateSubject.getScore()<0 || updateSubject.getScore()>10){
                 throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
-            } else if (foundSubjects.size()>0) {
+            }
+            if (foundSubjects.size()>0) {
                 throw new CustomException("some subjects already existed in this student's subject list");
             }
             else{

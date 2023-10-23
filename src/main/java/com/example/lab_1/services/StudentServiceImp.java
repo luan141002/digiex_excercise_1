@@ -46,6 +46,7 @@ public class StudentServiceImp implements StudentService{
         } else if (foundStudent.size()>0 || isUnique == false ) {
             throw new CustomException("this student's email already existed");
         }
+
         return studentRepo.save(newStudent);
     }
     public static boolean areElementsUnique(List<Subject> inputList) {
@@ -76,9 +77,34 @@ public class StudentServiceImp implements StudentService{
     public Double getStudentDetail(String id) {
         return subjectRepo.calStuScore(id);
     }
-
-    public Page<Student> findByClassAndSearchKeyWord(String id,String searchKey,Pageable sortedBy){
+    @Override
+    public Page<Student> findByClassAndSearchKeyWord(String id,String searchKey,Integer options){
+        Pageable sortedBy = PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuFirstName")));
+        switch (options){
+            case(1):
+                sortedBy =
+                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuFirstName")));
+                break;
+            case(2):
+                sortedBy =
+                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuLastName")));
+                break;
+            case(3):
+                sortedBy =
+                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuEmail")));
+                break;
+            case(4):
+                sortedBy =
+                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuDob")));
+                break;
+            case(5):
+                sortedBy =
+                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuPhone")));
+                break;
+        };
         Page<Student> lstStudent = studentRepo.findStudentsByName(id,searchKey,sortedBy);
-            return lstStudent;
+        return lstStudent;
     }
+
+
 }

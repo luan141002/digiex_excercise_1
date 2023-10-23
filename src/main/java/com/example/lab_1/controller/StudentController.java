@@ -88,9 +88,8 @@ public class StudentController {
     ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent) throws Exception {
         if (newStudent.getLstSub().size()>0){
             for (Subject subject :
-                 newStudent.getLstSub()) {
-                subjectService.addSubject(subject);
-
+                    newStudent.getLstSub()) {
+                    subjectService.addSubject(subject);
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(

@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ClassService {
-    public ClassEntity addClass(String id , String className,Integer max_student,String Status);
-    public ClassEntity updateClass(String id, String className, Integer max_student, Status Status);
-    public void deleteClass(String id);
-    public Long getClassDetail(String id);
-    public List<ClassDTO> getAllClass();
-    //public Page<ClassEntity> searchAndSort(String searchTerm, int page, int size, String sortBy);
+    ClassEntity addClass(ClassEntity newClass);
+    ClassEntity updateClass(ClassEntity updatedClass);
+    void deleteClass(String id);
+    Long getClassDetail(String id);
+    List<ClassDTO> getAllClass();
+    List<ClassEntity> getStudentListByCategories(Integer type,String className);
 
 }
