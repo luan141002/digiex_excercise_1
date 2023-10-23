@@ -1,5 +1,6 @@
 package com.example.lab_1.services;
 
+import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.model.ClassEntity;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
@@ -40,10 +41,11 @@ public class StudentServiceImp implements StudentService{
                           )
                 ).toList();
         // check all above conditions
-        if(subCount<3 && subCount>5 || foundStudent.size()>0 || isUnique == false ){
-            return null;
+        if(subCount<3 && subCount>5 ){
+            throw new CustomException("this student exceeds subject limit");
+        } else if (foundStudent.size()>0 || isUnique == false ) {
+            throw new CustomException("this student's email already existed");
         }
-
         return studentRepo.save(newStudent);
     }
     public static boolean areElementsUnique(List<Subject> inputList) {

@@ -3,6 +3,7 @@ package com.example.lab_1.services;
 import com.example.lab_1.common.enums.Status;
 import com.example.lab_1.common.exceptions.ApplicationException;
 import com.example.lab_1.common.utils.RestAPIStatus;
+import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.dto.ClassDTO;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.dto.SubjectDTO;
@@ -37,10 +38,11 @@ public class ClassServiceImp implements ClassService{
 
         ClassEntity newClassEntity = new ClassEntity().builder().claID(id).claName(className)
                     .claMaxStudent(max_student).build();
-        if(classRepo.findAll().stream().filter(classEntity->classEntity.getClaName().equals(className.trim())).count()>0 || max_student >=20){
-            throw new ApplicationException(RestAPIStatus.EXISTED,"this class name already existed");
-        }
-        else {
+        if(classRepo.findAll().stream().filter(classEntity->classEntity.getClaName().equals(className.trim())).count()>0 ){
+            throw new CustomException("this class name already existed");
+        } else if ( max_student >=20) {
+            throw new CustomException("this student quantity is over 20 student");
+        } else {
             return classRepo.save(newClassEntity);
         }
     }
@@ -53,10 +55,11 @@ public class ClassServiceImp implements ClassService{
             entityToUpdate.setClaMaxStudent(max_student);
             entityToUpdate.setStatus(Status);
         }
-        if(classRepo.findAll().stream().filter(classEntity->classEntity.getClaName().equals(className.trim())).count()>0 || max_student >=20){
-            return null;
-        }
-        else {
+        if(classRepo.findAll().stream().filter(classEntity->classEntity.getClaName().equals(className.trim())).count()>0){
+            throw new CustomException("this class name already existed");
+        } else if (max_student >=20) {
+            throw new CustomException("this student quantity is over 20 student");
+        } else {
             return classRepo.save(entityToUpdate);
         }
     }
@@ -80,7 +83,7 @@ public class ClassServiceImp implements ClassService{
 
     @Override
     public Long getClassDetail(String id) {
-        return stuRepo.findAll().stream().filter(student -> student.getStuClass().equals(id)).count();
+        return stuRepo.findAll().stream().filter(student ->student.getStuClass()!=null&&student.getStuClass().equals(id)).count();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.example.lab_1.controller;
 
+import com.example.lab_1.common.exceptions.ApplicationException;
+import com.example.lab_1.common.utils.RestAPIStatus;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.dto.SubjectDTO;
 import com.example.lab_1.model.Student;
@@ -34,7 +36,7 @@ public class StudentController {
     private SubjectRepo subjectRepo;
     @Autowired
     private SubjectService subjectService;
-
+    // Path : /student/topstudent
     @GetMapping("/topstudent")
     ResponseEntity<List<StudentDTO>> getListStudentPageByClassID(@RequestParam String performanceCategory){
         Double minScore;
@@ -67,27 +69,35 @@ public class StudentController {
                return new StudentDTO(student,subjectRepo.getAllSubByStuID(student.getStuID()));
         }).sorted(Comparator.comparing(StudentDTO::getAvgScore).reversed())
                 .collect(Collectors.toList());
+        // filter to get the score in the range for specified level
         List<StudentDTO> responseStuList = dtoStuList.stream()
                 .filter(studentDTO -> studentDTO.getAvgScore()>=minScore
                         &&studentDTO.getAvgScore()<=maxScore).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                responseStuList
-        );
-
+        if (responseStuList.size()>3){
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    responseStuList.subList(0,3)
+            );
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    responseStuList);
+        }
     }
-
+    // Path : /student/addStudent
     @PostMapping("/addStudent")
-    ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent){
+    ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent) throws Exception {
         if (newStudent.getLstSub().size()>0){
             for (Subject subject :
                  newStudent.getLstSub()) {
                 subjectService.addSubject(subject);
+
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(
                 new StudentDTO(studentService.addStudent(new Student(newStudent)),newStudent.getLstSub())
         );
     }
+    // Path : /student/updateStudent
     @PostMapping("/updateStudent")
     ResponseEntity<Object> updateStudent(@RequestBody StudentDTO newStudent){
         if (newStudent.getLstSub().size()>0){

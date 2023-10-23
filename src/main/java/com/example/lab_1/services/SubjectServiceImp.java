@@ -1,10 +1,12 @@
 package com.example.lab_1.services;
 
 import com.example.lab_1.common.enums.Status;
+import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
 import com.example.lab_1.repository.SubjectRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +24,10 @@ public class SubjectServiceImp implements SubjectService{
                                 subject.getSubID().equals(newSubject.getSubID())
                         )
                 ).toList();
-        if(newSubject.getScore()<0 || newSubject.getScore()>10 || foundSubject.size()>0){
-            return null;
+        if(newSubject.getScore()<0 || newSubject.getScore()>10){
+            throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
+        } else if (foundSubject.size()>0) {
+            throw new CustomException("some subjects already existed in this student's subject list");
         }
         return subjectRepo.save(newSubject);
     }
@@ -41,8 +45,10 @@ public class SubjectServiceImp implements SubjectService{
                                             subject.getSubID().equals(updateSubject.getSubID())
                             )
                     ).toList();
-            if(updateSubject.getScore()<0 || updateSubject.getScore()>10 || foundSubjects.size()>0){
-                return null;
+            if(updateSubject.getScore()<0 || updateSubject.getScore()>10){
+                throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
+            } else if (foundSubjects.size()>0) {
+                throw new CustomException("some subjects already existed in this student's subject list");
             }
             else{
                 foundSubject.setScore(updateSubject.getScore());
@@ -62,8 +68,10 @@ public class SubjectServiceImp implements SubjectService{
                                             subject.getSubID().equals(updateSubject.getSubID())
                             )
                     ).toList();
-            if(updateSubject.getScore()<0 || updateSubject.getScore()>10 || foundSubjects.size()>0){
-                return null;
+            if(updateSubject.getScore()<0 || updateSubject.getScore()>10){
+                throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
+            } else if (foundSubjects.size()>0) {
+                throw new CustomException("This subject already existed in this student's subject list");
             }
 
             return subjectRepo.save(updateSubject);

@@ -42,7 +42,7 @@ public class ClassController {
     @Autowired
     private SubjectRepo subjectRepo;
 
-
+    // Path : /class/page/{id}
     @GetMapping("/page/{id}")
     ResponseEntity<Page<Student>> getListStudentPageByClassID(@PathVariable String id,@RequestParam(required = false) String searchKey,@RequestParam(required = false) Integer options){
         Pageable sortedBy = PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuFirstName")));
@@ -74,13 +74,21 @@ public class ClassController {
         );
 
     }
-
+    // Path : /class/
     @GetMapping("")
     ResponseEntity<List<ClassDTO>> getAllClassList() {
         return ResponseEntity.status(HttpStatus.OK).body(
                 classService.getAllClass()
         );
     }
+    @GetMapping("/{id}/details")
+    ResponseEntity<Long> getClassDetailByID(@PathVariable String id ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                classService.getClassDetail(id)
+        );
+    }
+
+    // Path : /sort/{type}
     @GetMapping("/sort/{type}")
     ResponseEntity<List<ClassEntity>> getStudentList(@PathVariable Integer type,@RequestParam(required = false) String className ) {
         List<ClassEntity> listClass = new ArrayList<ClassEntity>();
@@ -100,6 +108,7 @@ public class ClassController {
                 listClass
         );
     }
+    // Path : /class/{id}
     @GetMapping("/{id}")
     ResponseEntity<List<StudentDTO>> getStudentListByClassID(@PathVariable String id ) {
         List<StudentDTO> dtoStuList = studentRepo.getAllStuByClassID(id).stream().map(student -> {
@@ -119,7 +128,8 @@ public class ClassController {
                 dtoStuList
         );
     }
-    @PostMapping("/adduser")
+    // Path : /class/addClass
+    @PostMapping("/addClass")
     ResponseEntity<Object> addClass(@RequestBody ClassEntity newClass) {
         // checking whether that class name already existed
         List<ClassEntity> foundClasses = classRepo.findAll().stream()
@@ -137,7 +147,8 @@ public class ClassController {
                classRepo.save(newClass)
         );
     }
-    @PostMapping("/updateuser")
+    // Path : /class/updateClass
+    @PostMapping("/updateClass")
     ResponseEntity<Object> updateClass(@RequestBody ClassEntity updatedClass) {
         // checking whether that class name already existed
         List<ClassEntity> foundClasses = classRepo.findAll().stream()
@@ -158,7 +169,7 @@ public class ClassController {
             );
         }
     }
-
+    // Path : /class/delete/{id}
     @DeleteMapping ("delete/{id}")
     ResponseEntity deleteClass(@PathVariable String id) {
         classService.deleteClass(id);
