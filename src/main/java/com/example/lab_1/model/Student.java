@@ -27,34 +27,47 @@ import java.util.List;
 public class Student extends BaseEntity {
     @Id
     @Column(name="stu_id",length = 32)
-    private String stuID;
+    private String student_ID;
+    private String middleName;
     @Column(name="first_name",length = 45)
-    private String stuFirstName;
+    private String student_First_Name;
     @Column(name="last_name",length = 45)
-    private String stuLastName;
+    private String student_Last_Name;
     @Column(name="email",nullable = false,unique = true,length = 45)
-    private String stuEmail;
+    private String student_Email;
     @Column(name="phone_number",nullable = false,unique = true,length = 12)
-    private Integer stuPhone;
+    private Integer student_Phone;
     @Column(name="gender",length = 45)
-    private String stuGender;
+    private String student_Gender;
     @Column(name="dob")
-    private Date stuDob;
+    private Date student_Dob;
     @Column(name="address")
-    private String stuAddress;
+    private String student_Address;
 
     @Column(name = "class_id")
-    private String stuClass;
+    private String student_Class_ID;
+
 
     public Student(StudentDTO studentDTO) {
-        this.stuID = studentDTO.getStuID();
-        this.stuFirstName = studentDTO.getStuFirstName();
-        this.stuLastName = studentDTO.getStuLastName();
-        this.stuEmail = studentDTO.getStuEmail();
-        this.stuPhone = studentDTO.getStuPhone();
-        this.stuGender = studentDTO.getStuGender();
-        this.stuDob = studentDTO.getStuDob();
-        this.stuAddress = studentDTO.getStuAddress();
-
+        this.student_ID = studentDTO.getStuID();
+        this.student_First_Name = studentDTO.getStuFirstName();
+        this.student_Last_Name = studentDTO.getStuLastName();
+        this.student_Email = studentDTO.getStuEmail();
+        this.student_Phone = studentDTO.getStuPhone();
+        this.student_Gender = studentDTO.getStuGender();
+        this.student_Dob = studentDTO.getStuDob();
+        this.student_Address = studentDTO.getStuAddress();
+        this.student_Class_ID =studentDTO.getClasID();
+    }
+    public boolean areAllFieldsNull() {
+        return student_ID == null
+                && student_First_Name == null
+                && student_Last_Name == null
+                && student_Email == null
+                && student_Phone == null
+                && student_Gender == null
+                && student_Dob == null
+                && student_Address == null
+                && student_Class_ID == null;
     }
 }

@@ -1,7 +1,5 @@
 package com.example.lab_1.controller;
 
-import com.example.lab_1.common.exceptions.ApplicationException;
-import com.example.lab_1.common.utils.RestAPIStatus;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.dto.SubjectDTO;
 import com.example.lab_1.model.Student;
@@ -10,19 +8,15 @@ import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
 import com.example.lab_1.services.StudentService;
 import com.example.lab_1.services.SubjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -36,82 +30,78 @@ public class StudentController {
     private SubjectRepo subjectRepo;
     @Autowired
     private SubjectService subjectService;
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+
     // Path : /student/topstudent
     @GetMapping("/topstudent")
-    ResponseEntity<List<StudentDTO>> getListStudentPageByClassID(@RequestParam String performanceCategory){
-        Double minScore;
-        Double maxScore;
+    ResponseEntity<List<StudentDTO>> getListStudentPageByClassID(@RequestParam String performanceCategory) {
+        double minScore;
+        double maxScore;
 
         switch (performanceCategory.trim()) {
-            case "excellent":
+            case "excellent" -> {
                 minScore = 9.0;
                 maxScore = 10.0;
-                break;
-            case "good":
+            }
+            case "good" -> {
                 minScore = 8.0;
                 maxScore = 8.9;
-                break;
-            case "average":
+            }
+            case "average" -> {
                 minScore = 6.0;
                 maxScore = 7.9;
-                break;
-            case "weak":
+            }
+            case "weak" -> {
                 minScore = 0.0;
                 maxScore = 5.9;
-                break;
-            default:
+            }
+            default -> {
                 minScore = 0.0;
                 maxScore = 10.0;
-                break;
             }
-            //map to get the list with avgScore of each student
+        }
+        //map to get the list with avgScore of each student
         List<StudentDTO> dtoStuList = studentRepo.findAll().stream().map(student -> {
-               return new StudentDTO(student,subjectRepo.getAllSubByStuID(student.getStuID()));
-        }).sorted(Comparator.comparing(StudentDTO::getAvgScore).reversed())
-                .collect(Collectors.toList());
+                    return new StudentDTO(student, subjectRepo.getAllSubByStuID(student.getStudent_ID()));
+                }).sorted(Comparator.comparing(StudentDTO::getAvgScore).reversed())
+                .toList();
         // filter to get the score in the range for specified level
         List<StudentDTO> responseStuList = dtoStuList.stream()
-                .filter(studentDTO -> studentDTO.getAvgScore()>=minScore
-                        &&studentDTO.getAvgScore()<=maxScore).toList();
-        if (responseStuList.size()>3){
+                .filter(studentDTO -> studentDTO.getAvgScore() >= minScore
+                        && studentDTO.getAvgScore() <= maxScore).toList();
+        if (responseStuList.size() > 3) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    responseStuList.subList(0,3)
+                    responseStuList.subList(0, 3)
             );
-        }
-        else{
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     responseStuList);
         }
     }
+
     // Path : /student/addStudent
     @PostMapping("/addStudent")
     ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent) throws Exception {
-        if (newStudent.getLstSub().size()>0){
-            for (Subject subject :
+        if (newStudent.getLstSub().size() > 0) {
+            for (SubjectDTO subject :
                     newStudent.getLstSub()) {
-                    subjectService.addSubject(subject);
+                subjectService.addSubject(new Subject(subject));
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new StudentDTO(studentService.addStudent(new Student(newStudent)),newStudent.getLstSub())
-        );
-    }
-    // Path : /student/updateStudent
-    @PostMapping("/updateStudent")
-    ResponseEntity<Object> updateStudent(@RequestBody StudentDTO newStudent){
-        if (newStudent.getLstSub().size()>0){
-            for (Subject subject :
-                    newStudent.getLstSub()) {
-                subjectService.updateSubject(subject);
-            }
-        }else {
-            subjectRepo.deleteAllByStuID(newStudent.getStuID());
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new StudentDTO(studentService.addStudent(new Student(newStudent)),newStudent.getLstSub())
+                new StudentDTO(studentService.addStudent(new Student(newStudent)), newStudent
+                        .getLstSub().stream().map(subjectDTO -> new Subject(subjectDTO)).toList())
         );
     }
 
+    // Path : /student/updateStudent
+    @PostMapping("/updateStudent")
+    ResponseEntity<Object> updateStudent(@RequestBody StudentDTO updateStudent) {
+        logger.info(updateStudent.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                studentService.updateStudent(updateStudent)
+        );
+    }
 
 
 }

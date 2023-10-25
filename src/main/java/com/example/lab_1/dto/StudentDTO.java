@@ -1,5 +1,6 @@
 package com.example.lab_1.dto;
 
+import com.example.lab_1.common.enums.Status;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
 import lombok.Data;
@@ -22,7 +23,8 @@ public class StudentDTO {
     private String clasID;
     private String stuAddress;
     private Double avgScore;
-    private List<Subject> lstSub;
+    private List<SubjectDTO> lstSub;
+
 
 
     public StudentDTO(String stuID, String stuFirstName, String stuLastName, String stuEmail, Integer stuPhone, String stuGender,String clasID, Date stuDob, String stuAddress, List<Subject> lstSub) {
@@ -35,48 +37,49 @@ public class StudentDTO {
         this.stuDob = stuDob;
         this.clasID = clasID;
         this.stuAddress = stuAddress;
-        this.lstSub = lstSub;
+        this.lstSub = lstSub.stream().map(subject-> new SubjectDTO(subject)).toList();
     }
-    public static double calculateAverage(List<Subject> numbers) {
+    public static double calculateAverage(List<SubjectDTO> numbers) {
         if (numbers.size()== 0) {
             return 0.0; // Tránh chia cho 0 nếu mảng rỗng.
         }
 
         double sum = 0.0;
-        for (Subject number : numbers) {
+        for (SubjectDTO number : numbers) {
             sum += number.getScore();
         }
 
         return sum / numbers.size();
     }
     public StudentDTO(Student student,List<Subject> subjectList) {
-        this.stuID = student.getStuID();
-        this.stuFirstName = student.getStuFirstName();
-        this.stuLastName = student.getStuLastName();
-        this.stuEmail = student.getStuEmail();
-        this.stuPhone = student.getStuPhone();
-        this.stuGender = student.getStuGender();
-        this.clasID = student.getStuClass();
-        this.stuDob = student.getStuDob();
-        this.stuAddress = student.getStuAddress();
-        this.lstSub = subjectList;
+        this.stuID = student.getStudent_ID();
+        this.stuFirstName = student.getStudent_First_Name();
+        this.stuLastName = student.getStudent_Last_Name();
+        this.stuEmail = student.getStudent_Email();
+        this.stuPhone = student.getStudent_Phone();
+        this.stuGender = student.getStudent_Gender();
+        this.clasID = student.getStudent_Class_ID();
+        this.stuDob = student.getStudent_Dob();
+        this.stuAddress = student.getStudent_Address();
+        this.lstSub = subjectList.stream().map(subject-> new SubjectDTO(subject)).toList();
+
         if(subjectList!=null){
-            this.avgScore = calculateAverage(subjectList);
+            this.avgScore = calculateAverage(this.lstSub);
         }
         else{
             this.avgScore = 0.0;
         }
     }
     public StudentDTO(Student student) {
-        this.stuID = student.getStuID();
-        this.stuFirstName = student.getStuFirstName();
-        this.stuLastName = student.getStuLastName();
-        this.stuEmail = student.getStuEmail();
-        this.stuPhone = student.getStuPhone();
-        this.stuGender = student.getStuGender();
-        this.clasID = student.getStuClass();
-        this.stuDob = student.getStuDob();
-        this.stuAddress = student.getStuAddress();
+        this.stuID = student.getStudent_ID();
+        this.stuFirstName = student.getStudent_First_Name();
+        this.stuLastName = student.getStudent_Last_Name();
+        this.stuEmail = student.getStudent_Email();
+        this.stuPhone = student.getStudent_Phone();
+        this.stuGender = student.getStudent_Gender();
+        this.clasID = student.getStudent_Class_ID();
+        this.stuDob = student.getStudent_Dob();
+        this.stuAddress = student.getStudent_Address();
 
     }
     // Getters and setters (or Lombok annotations if you prefer)

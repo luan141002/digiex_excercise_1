@@ -23,12 +23,13 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class ClassEntity extends BaseEntity{
     @Id
+
     @Column(name="cla_id",length = 32)
-    private String claID;
+    private String class_ID;
     @Column(name = "class_name",unique = true,length = 45)
-    private String claName;
+    private String class_Name;
     @Column(name = "max_student")
-    private Integer claMaxStudent;
+    private Integer class_Max_Student;
 
 
 }
