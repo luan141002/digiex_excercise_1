@@ -24,16 +24,16 @@ public class ClassDTO {
         this.lstStudent = dtoList;
     }
     public ClassDTO(ClassEntity classEntity, List<StudentDTO> dtoList) {
-        this.claID = classEntity.getClaID();
-        this.claName = classEntity.getClaName();
-        this.claMaxStudent = classEntity.getClaMaxStudent();
+        this.claID = classEntity.getClass_ID();
+        this.claName = classEntity.getClass_Name();
+        this.claMaxStudent = classEntity.getClass_Max_Student();
         this.lstStudent = dtoList;
         this.claNumStu = dtoList.size();
     }
     public ClassDTO(ClassEntity classEntity) {
-        this.claID = classEntity.getClaID();
-        this.claName = classEntity.getClaName();
-        this.claMaxStudent = classEntity.getClaMaxStudent();
+        this.claID = classEntity.getClass_ID();
+        this.claName = classEntity.getClass_Name();
+        this.claMaxStudent = classEntity.getClass_Max_Student();
     }
 
     // Getters and setters (or Lombok annotations if you prefer)

@@ -7,4 +7,5 @@ public interface SubjectService {
     Subject updateSubject(Subject updateSubject);
     void deleteSubject(String id);
     Subject getSubjectDetail(String id);
+    public boolean is_Valid(Subject subject);
 }

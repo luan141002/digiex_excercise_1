@@ -18,12 +18,12 @@ import java.util.List;
 public interface ClassRepo extends JpaRepository<ClassEntity, String>{
 //    Page<ClassEntity> findAll(Example<ClassEntity> example, Pageable pageable);
 //    Page<ClassEntity> findAll(Example<ClassEntity> example, Pageable pageable, Sort sort);
-    @Query("UPDATE classes c set c.status =:INACTIVE WHERE c.claID =:classID")
+    @Query("UPDATE classes c set c.status =:INACTIVE WHERE c.class_ID =:classID")
     void deleteAllClassByID(@Param("classID") String classID);
 
 
     List<ClassEntity> findAll(Sort sort);
-    @Query("SELECT c FROM classes c WHERE c.claName LIKE %:clasName%")
+    @Query("SELECT c FROM classes c WHERE c.class_Name LIKE %:clasName%")
     List<ClassEntity> findStudentsByName( @Param("clasName") String clasName);
 
 
