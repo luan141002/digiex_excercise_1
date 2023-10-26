@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.vladmihalcea.hibernate.type.json.JsonType;
-
 import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.TypeDef;
@@ -16,7 +15,6 @@ import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -47,6 +45,7 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "status", length = 45)
     @Enumerated(EnumType.STRING)
     protected Status status = Status.ACTIVE;
+
     @PrePersist
     protected void onCreate() {
         this.createdDate = DateUtil.convertToUTC(new Date());

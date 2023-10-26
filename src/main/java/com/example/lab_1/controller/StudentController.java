@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("student")
 public class StudentController {
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     private StudentService studentService;
     @Autowired
@@ -30,7 +31,6 @@ public class StudentController {
     private SubjectRepo subjectRepo;
     @Autowired
     private SubjectService subjectService;
-    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
 
     // Path : /student/topstudent
     @GetMapping("/topstudent")
@@ -90,7 +90,7 @@ public class StudentController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(
                 new StudentDTO(studentService.addStudent(new Student(newStudent)), newStudent
-                        .getLstSub().stream().map(subjectDTO -> new Subject(subjectDTO)).toList())
+                        .getLstSub().stream().map(Subject::new).toList())
         );
     }
 

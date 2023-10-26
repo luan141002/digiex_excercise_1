@@ -15,8 +15,7 @@ public enum RestAPIStatus {
     EXISTED(405, "Already existed"),
     BAD_PARAMS(406, "There is some invalid data"),
     EXPIRED(407, "Expired"),
-    INTERNAL_SERVER_ERROR(500, "Internal server error")
-    ;
+    INTERNAL_SERVER_ERROR(500, "Internal server error");
 
     private final int code;
     private final String description;
@@ -26,17 +25,17 @@ public enum RestAPIStatus {
         description = v;
     }
 
+    public static RestAPIStatus getEnum(int code) {
+        for (RestAPIStatus v : values())
+            if (v.getCode() == code) return v;
+        throw new IllegalArgumentException();
+    }
+
     public int getCode() {
         return code;
     }
 
     public String getDescription() {
         return description;
-    }
-
-    public static RestAPIStatus getEnum(int code) {
-        for (RestAPIStatus v : values())
-            if (v.getCode() == code) return v;
-        throw new IllegalArgumentException();
     }
 }

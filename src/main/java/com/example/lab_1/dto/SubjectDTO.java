@@ -25,7 +25,8 @@ public class SubjectDTO {
         this.subStu = subStu;
         this.subStatus = status.toString();
     }
-    public SubjectDTO(Subject subject){
+
+    public SubjectDTO(Subject subject) {
         this.subID = subject.getSubject_ID();
         this.subName = subject.getSubject_Name();
         this.numberOfLessons = subject.getNumber_of_lessons();

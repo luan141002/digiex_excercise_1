@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,23 +25,13 @@ import java.util.Set;
 
 @Service
 public class StudentServiceImp implements StudentService {
+    private static final Logger logger = LoggerFactory.getLogger(StudentServiceImp.class);
     @Autowired
     private SubjectRepo subjectRepo;
     @Autowired
     private StudentRepo studentRepo;
     @Autowired
     private SubjectService subjectService;
-    private static final Logger logger = LoggerFactory.getLogger(StudentServiceImp.class);
-
-
-    @Override
-    public Student addStudent(Student newStudent) {
-        if (is_Student_Valid(newStudent)) {
-            throw new CustomException("Cant save this student");
-        }
-        newStudent.setStudent_ID(UniqueID.getUUID());
-        return studentRepo.save(newStudent);
-    }
 
     public static boolean areElementsUnique(List<Subject> inputList) {
         Set<String> seenElements = new HashSet<>();
@@ -55,6 +43,15 @@ public class StudentServiceImp implements StudentService {
             seenElements.add(element.getSubject_ID());
         }
         return true; // All elements are unique
+    }
+
+    @Override
+    public Student addStudent(Student newStudent) {
+        if (is_Student_Valid(newStudent)) {
+            throw new CustomException("Cant save this student");
+        }
+        newStudent.setStudent_ID(UniqueID.getUUID());
+        return studentRepo.save(newStudent);
     }
 
     private boolean is_Student_Valid(Student newStudent) {
@@ -81,7 +78,6 @@ public class StudentServiceImp implements StudentService {
     public StudentDTO updateStudent(StudentDTO updateStudent) {
         try {
 
-
             Student Student_info = new Student(updateStudent);
             Student foundStudent = studentRepo.findById(updateStudent.getStuID()).orElse(null);
             savingStudentChange(foundStudent, Student_info);
@@ -95,13 +91,13 @@ public class StudentServiceImp implements StudentService {
             List<SubjectDTO> List_Create_Subject = updateStudent.getLstSub()
                     .stream().filter(subject -> subject.getSubID() == null).toList();
             List<SubjectDTO> List_Update_Subject = updateStudent.getLstSub()
-                    .stream().filter(subject -> subject.getSubID()!=null
-                                    && subject.getSubStatus() ==  null).toList();
+                    .stream().filter(subject -> subject.getSubID() != null
+                            && subject.getSubStatus() == null).toList();
             List<SubjectDTO> List_Delete_Subject = updateStudent.getLstSub()
                     .stream().filter(subject ->
                             subject.getSubID() != null
-                                    && subject.getSubStatus() !=  null).toList();
-            int sizeLimit = listSubject.size() + List_Create_Subject.size()  - List_Delete_Subject.size();
+                                    && subject.getSubStatus() != null).toList();
+            int sizeLimit = listSubject.size() + List_Create_Subject.size() - List_Delete_Subject.size();
             if (sizeLimit > 5) {
                 throw new CustomException("Your Subject list exceed the limit");
             }
@@ -109,13 +105,13 @@ public class StudentServiceImp implements StudentService {
             logger.info(List_Update_Subject.toString());
             logger.info(List_Create_Subject.toString());
             logger.info(List_Delete_Subject.toString());
-            if (!List_Update_Subject.isEmpty()){
-             List<Subject> listUpdatedSubject = listSubject.stream().map(subject -> {
-                    Subject testSubject = SavingSubjectChange(subject,
-                            List_Update_Subject.stream().map(subjectElement->new Subject(subjectElement)).toList());
-                        if(testSubject==null){
-                            return subject;
-                        }
+            if (!List_Update_Subject.isEmpty()) {
+                List<Subject> listUpdatedSubject = listSubject.stream().map(subject -> {
+                            Subject testSubject = SavingSubjectChange(subject,
+                                    List_Update_Subject.stream().map(subjectElement -> new Subject(subjectElement)).toList());
+                            if (testSubject == null) {
+                                return subject;
+                            }
                             return testSubject;
                         }
                 ).toList();
@@ -221,7 +217,7 @@ public class StudentServiceImp implements StudentService {
 
     @Override
     public Page<Student> findByClassAndSearchKeyWord(FilterRequestModel requestModel) {
-
+        logger.info(requestModel.toString());
         if (requestModel.getClassID() == null) {
             throw new CustomException("Class ID is invalid");
         }
@@ -229,39 +225,39 @@ public class StudentServiceImp implements StudentService {
             throw new CustomException("Search term is invalid");
         }
         Pageable sortedBy = PageRequest.of(requestModel.getCurrentPageIndex(), requestModel.getPageSize());
-        if (requestModel.getSortField() != "stuFirstName"
-                && requestModel.getSortField() != "stuLastName"
-                && requestModel.getSortField() != "stuEmail"
-                && requestModel.getSortField() != "stuPhone"
-                && requestModel.getSortField() != "stuDob") {
-            throw new CustomException("sort type is invalid");
+        if (!requestModel.getSortField().trim().equals("student_First_Name")
+                && !requestModel.getSortField().trim().equals("student_Last_Name")
+                && !requestModel.getSortField().trim().equals("student_Email")
+                && !requestModel.getSortField().trim().equals("student_Phone")
+        ) {
+            throw new CustomException("sort field is invalid");
         }
         if (requestModel.getGender() != "female" && requestModel.getGender() != "male") {
             requestModel.setGender("ale");
         }
         logger.info(requestModel.getSortType());
-        if (requestModel.getSortType() != null) {
-            if (requestModel.getSortType().trim().equals("asc")) {
-                sortedBy = PageRequest.of(requestModel.getCurrentPageIndex(), requestModel.getPageSize(), Sort.by(Sort.Order.asc(requestModel.getSortField())));
-            }
-            if (requestModel.getSortType().trim().equals("desc")) {
-                sortedBy = PageRequest.of(requestModel.getCurrentPageIndex(), requestModel.getPageSize(), Sort.by(Sort.Order.desc(requestModel.getSortField())));
-            }
-        } else {
+        if (requestModel.getSortType() == null) {
+
             throw new CustomException("Sort Type is invalid");
         }
-        if (requestModel.getStartDoB() == null) {
-            requestModel.setStartDoB("01/01/1900");
+        if (requestModel.getSortType().trim().equals("asc")) {
+            sortedBy = PageRequest.of(requestModel.getCurrentPageIndex(), requestModel.getPageSize(), Sort.by(Sort.Order.asc(requestModel.getSortField())));
         }
-        if (requestModel.getStartDoB() == null) {
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-            String strEndDate = formatter.format(new Date());
-            requestModel.setEndDoB(strEndDate);
+        if (requestModel.getSortType().trim().equals("desc")) {
+            sortedBy = PageRequest.of(requestModel.getCurrentPageIndex(), requestModel.getPageSize(), Sort.by(Sort.Order.desc(requestModel.getSortField())));
         }
+//        if (requestModel.getStartDoB() == null) {
+//            requestModel.setStartDoB("01/01/1900");
+//        }
+//        if (requestModel.getStartDoB() == null) {
+//            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+//            String strEndDate = formatter.format(new Date());
+//            requestModel.setEndDoB(strEndDate);
+//        }
 
         Page<Student> lstStudent = studentRepo.findStudentsByName(
                 requestModel.getClassID(), requestModel.getSearchKey(),
-                requestModel.getStartDoB(), sortedBy);
+                requestModel.getGender(), sortedBy);
         return lstStudent;
     }
 

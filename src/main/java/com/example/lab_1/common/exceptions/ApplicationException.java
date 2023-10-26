@@ -2,8 +2,6 @@ package com.example.lab_1.common.exceptions;
 
 
 import com.example.lab_1.common.utils.RestAPIStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * @author 689Cloud

@@ -1,9 +1,7 @@
 package com.example.lab_1.model;
 
-import com.example.lab_1.common.enums.Status;
 import com.example.lab_1.dto.StudentDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
-
 
 
 @Table
@@ -26,22 +22,22 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class Student extends BaseEntity {
     @Id
-    @Column(name="stu_id",length = 32)
+    @Column(name = "stu_id", length = 32)
     private String student_ID;
     private String middleName;
-    @Column(name="first_name",length = 45)
+    @Column(name = "first_name", length = 45)
     private String student_First_Name;
-    @Column(name="last_name",length = 45)
+    @Column(name = "last_name", length = 45)
     private String student_Last_Name;
-    @Column(name="email",nullable = false,unique = true,length = 45)
+    @Column(name = "email", nullable = false, unique = true, length = 45)
     private String student_Email;
-    @Column(name="phone_number",nullable = false,unique = true,length = 12)
+    @Column(name = "phone_number", nullable = false, unique = true, length = 12)
     private Integer student_Phone;
-    @Column(name="gender",length = 45)
+    @Column(name = "gender", length = 45)
     private String student_Gender;
-    @Column(name="dob")
+    @Column(name = "dob")
     private Date student_Dob;
-    @Column(name="address")
+    @Column(name = "address")
     private String student_Address;
 
     @Column(name = "class_id")
@@ -57,8 +53,9 @@ public class Student extends BaseEntity {
         this.student_Gender = studentDTO.getStuGender();
         this.student_Dob = studentDTO.getStuDob();
         this.student_Address = studentDTO.getStuAddress();
-        this.student_Class_ID =studentDTO.getClasID();
+        this.student_Class_ID = studentDTO.getClasID();
     }
+
     public boolean areAllFieldsNull() {
         return student_ID == null
                 && student_First_Name == null

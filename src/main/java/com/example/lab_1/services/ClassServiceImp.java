@@ -1,43 +1,34 @@
 package com.example.lab_1.services;
 
 import com.example.lab_1.common.enums.Status;
-import com.example.lab_1.common.exceptions.ApplicationException;
-import com.example.lab_1.common.utils.RestAPIStatus;
 import com.example.lab_1.common.utils.UniqueID;
-import com.example.lab_1.controller.ClassController;
 import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.dto.ClassDTO;
 import com.example.lab_1.dto.StudentDTO;
-import com.example.lab_1.dto.SubjectDTO;
 import com.example.lab_1.model.ClassEntity;
 import com.example.lab_1.model.Subject;
 import com.example.lab_1.repository.ClassRepo;
-
-
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 public class ClassServiceImp implements ClassService {
+    private static final Logger logger = LoggerFactory.getLogger(ClassServiceImp.class);
     @Autowired
     private ClassRepo classRepo;
     @Autowired
     private StudentRepo stuRepo;
     @Autowired
     private SubjectRepo subjectRepo;
-    private static final Logger logger = LoggerFactory.getLogger(ClassServiceImp.class);
 
     @Override
     public ClassEntity addClass(ClassEntity newClass) {
@@ -60,21 +51,20 @@ public class ClassServiceImp implements ClassService {
     @Override
     public ClassEntity updateClass(ClassEntity updatedClass) {
         ClassEntity entityToUpdate = classRepo.findById(updatedClass.getClass_ID()).orElse(null);
-        if (entityToUpdate != null) {
-            entityToUpdate.setClass_Name(updatedClass.getClass_Name());
-            entityToUpdate.setClass_Max_Student(updatedClass.getClass_Max_Student());
-            entityToUpdate.setStatus(updatedClass.getStatus());
+        if (entityToUpdate == null) {
+            throw new CustomException("can't find this class");
         }
-        if (classRepo.findAll().stream()
-                .filter(classEntity -> classEntity.getClass_Name()
-                        .equals(updatedClass.getClass_Name().trim())).count() > 0) {
+        if (classRepo.getClassEntitiesByClassNameAndStatus(updatedClass.getClass_Name().trim()) != null) {
             throw new CustomException("this class name already existed");
         }
         if (updatedClass.getClass_Max_Student() >= 20) {
             throw new CustomException("this student quantity is over 20 student");
-        } else {
-            return classRepo.save(entityToUpdate);
         }
+        entityToUpdate.setClass_Name(updatedClass.getClass_Name());
+        entityToUpdate.setClass_Max_Student(updatedClass.getClass_Max_Student());
+        entityToUpdate.setStatus(updatedClass.getStatus());
+        return classRepo.save(entityToUpdate);
+
     }
 
     @Override
@@ -116,18 +106,16 @@ public class ClassServiceImp implements ClassService {
 
     @Override
     public List<ClassEntity> getStudentListByCategories(Integer type, String className) {
-        List<ClassEntity> listClass = new ArrayList<ClassEntity>();
-        switch (type) {
-            case (1):
-                listClass = classRepo.findAll(Sort.by(Sort.Order.asc("claMaxStudent")));
-                break;
-            case 2:
-                listClass = classRepo.findStudentsByName(className);
-                break;
-            default:
-                listClass = classRepo.findAll(Sort.by(Sort.Order.asc("claName")));
-                break;
-        }
+        logger.info(className);
+        logger.info(String.valueOf(type));
+        List<ClassEntity> listClass = classRepo.findAll();
+        listClass = switch (type) {
+            case (1) -> listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Max_Student))
+                    .collect(Collectors.toList());
+            case 2 -> classRepo.findStudentsByName(className);
+            default -> listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Name))
+                    .collect(Collectors.toList());
+        };
         return listClass;
     }
 

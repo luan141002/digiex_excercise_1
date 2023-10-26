@@ -1,4 +1,5 @@
 package com.example.lab_1.common.utils;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -7,7 +8,9 @@ import java.util.UUID;
  */
 public class UniqueID {
 
+    static final String P = "0123456789";
     public static String[] hardKey = new String[100];
+    static Random rnd = new Random();
 
     /**
      * 128 bit UUID
@@ -17,8 +20,6 @@ public class UniqueID {
         return uuid.replaceAll("-", "");
     }
 
-    static final String P = "0123456789";
-    static Random rnd = new Random();
     public static String randomStringPin() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 5; i++) {

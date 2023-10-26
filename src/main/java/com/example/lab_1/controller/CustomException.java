@@ -1,6 +1,6 @@
 package com.example.lab_1.controller;
 
-public class CustomException extends RuntimeException{
+public class CustomException extends RuntimeException {
     public CustomException(String message) {
         super(message);
     }

@@ -16,7 +16,7 @@ public interface Constant {
     String PRODUCT_NAME = "productName";
     String NAME = "name";
     String PRICE = "price";
-    String RENEWABLE_PRICE= "renewablePrice";
+    String RENEWABLE_PRICE = "renewablePrice";
     String PRODUCT_PERIOD = "productPeriod";
     String PRODUCT_TYPE = "productType";
     String NUMBER_USER = "numberUser";

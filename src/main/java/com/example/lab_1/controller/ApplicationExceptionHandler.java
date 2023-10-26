@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class ApplicationExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception exc){
-            // create a Error response
-        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST,exc.getMessage(),System.currentTimeMillis());
-        return  new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleException(Exception exc) {
+        // create a Error response
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST, exc.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 
     }
 }

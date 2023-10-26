@@ -1,12 +1,10 @@
 package com.example.lab_1.controller;
 
-import com.example.lab_1.common.enums.Status;
 import com.example.lab_1.dto.ClassDTO;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.model.ClassEntity;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.request.FilterRequestModel;
-import com.example.lab_1.repository.ClassRepo;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
 import com.example.lab_1.services.ClassService;
@@ -15,14 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,9 +25,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/class")
 
 public class ClassController {
+    private static final Logger logger = LoggerFactory.getLogger(ClassController.class);
     @Autowired
     private ClassService classService;
-
     @Autowired
     private StudentService studentService;
     @Autowired
@@ -121,9 +115,10 @@ public class ClassController {
     }
 
     // Path : /class/updateClass
-    @PostMapping("/updateClass")
+    @PutMapping("/updateClass")
     ResponseEntity<Object> updateClass(@RequestBody ClassEntity updatedClass) {
         // Update and return updatedClass
+        logger.info(updatedClass.toString());
         return ResponseEntity.status(HttpStatus.OK).body(
                 classService.updateClass(updatedClass)
         );

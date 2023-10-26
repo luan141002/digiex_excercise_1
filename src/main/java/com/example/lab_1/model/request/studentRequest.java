@@ -2,25 +2,25 @@ package com.example.lab_1.model.request;
 
 import java.util.Date;
 
-public record studentRequest (
+public record studentRequest(
 
-    String stuID,
+        String stuID,
 
-    String stuFirstName,
+        String stuFirstName,
 
-    String stuLastName,
+        String stuLastName,
 
-    String stuEmail,
+        String stuEmail,
 
-    Integer stuPhone,
+        Integer stuPhone,
 
-    String stuGender,
+        String stuGender,
 
-    Date stuDob,
+        Date stuDob,
 
-    String stuAddress,
+        String stuAddress,
 
-    String stuClass
-    ){
+        String stuClass
+) {
 
 }

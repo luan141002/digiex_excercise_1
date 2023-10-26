@@ -1,11 +1,11 @@
 package com.example.lab_1.dto;
 
 import com.example.lab_1.model.ClassEntity;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class ClassDTO {
@@ -23,6 +23,7 @@ public class ClassDTO {
         this.claStatus = claStatus;
         this.lstStudent = dtoList;
     }
+
     public ClassDTO(ClassEntity classEntity, List<StudentDTO> dtoList) {
         this.claID = classEntity.getClass_ID();
         this.claName = classEntity.getClass_Name();
@@ -30,6 +31,7 @@ public class ClassDTO {
         this.lstStudent = dtoList;
         this.claNumStu = dtoList.size();
     }
+
     public ClassDTO(ClassEntity classEntity) {
         this.claID = classEntity.getClass_ID();
         this.claName = classEntity.getClass_Name();

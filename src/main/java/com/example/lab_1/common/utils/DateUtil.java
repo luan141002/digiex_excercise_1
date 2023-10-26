@@ -20,6 +20,8 @@ public class DateUtil {
     public static final String _DATE_MAX = "9999-12-31 23:59:59";
     public static final Date MAX_DATE = new Date(9999, 1, 1);
     public static final String _DATE_MIN = "1000-01-02 00:00:00";
+    private static final SimpleDateFormat _fmtYear = new SimpleDateFormat("yyyy");
+    private static final SimpleDateFormat _fmtMonth = new SimpleDateFormat("MM");
     private static TimeZone _tz = TimeZone.getTimeZone("UTC");
 
     /**
@@ -186,8 +188,6 @@ public class DateUtil {
         return dbFmt.format(date);
     }
 
-    private static final SimpleDateFormat _fmtYear = new SimpleDateFormat("yyyy");
-
     public static int getYear(Date date, TimeZone timeZone) {
         if (date == null) {
             throw new IllegalArgumentException("date is required.");
@@ -203,8 +203,6 @@ public class DateUtil {
                     "Failed to format date : " + e.getMessage());
         }
     }
-
-    private static final SimpleDateFormat _fmtMonth = new SimpleDateFormat("MM");
 
     public static int getMonth(Date date, TimeZone timeZone) {
         if (date == null) {
