@@ -23,7 +23,7 @@ import javax.persistence.Id;
 @Entity(name = "subject")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE subject  SET status = 'INACTIVE' WHERE sub_id=?")
+@SQLDelete(sql = "UPDATE subject  SET status = 'INACTIVE' WHERE sub_id = ?")
 public class Subject extends BaseEntity {
     @Id
     @Column(name = "sub_id", length = 32)
@@ -36,14 +36,14 @@ public class Subject extends BaseEntity {
     @Column(name = "score")
     private Double score;
     @Column(name = "student_id")
-    private String subject_student_ID;
+    private String studentId;
 
     public Subject(SubjectDTO subjectDTO) {
         this.subject_ID = subjectDTO.getSubID();
         this.subject_Name = subjectDTO.getSubName();
         this.number_of_lessons = subjectDTO.getNumberOfLessons();
         this.score = subjectDTO.getScore();
-        this.subject_student_ID = subjectDTO.getSubStu();
+        this.studentId = subjectDTO.getSubStu();
     }
 
 }

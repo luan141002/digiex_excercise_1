@@ -18,7 +18,11 @@ public class SubjectServiceImp implements SubjectService {
     @Override
     public Subject addSubject(Subject newSubject) {
         // check whether there are this subject list of specified student or not
-        if (!is_Valid(newSubject)) {
+        List<Subject> subjectFromDb = subjectRepo.findAll();
+        List<Subject> foundLiSubject = subjectFromDb.stream()
+                .filter(subject -> subject.getStudentId()
+                        .equals(newSubject.getStudentId())).toList();
+        if (!is_Valid(newSubject, foundLiSubject)) {
             throw new CustomException("Failed to save this subject");
         }
         newSubject.setSubject_ID(UniqueID.getUUID());
@@ -27,39 +31,31 @@ public class SubjectServiceImp implements SubjectService {
 
     @Override
     public Subject updateSubject(Subject updateSubject) {
-        if (updateSubject.getSubject_ID() != null && updateSubject.getStatus() == null) {
-            Subject foundSubject = subjectRepo.findById(updateSubject.getSubject_ID()).orElse(null);
-            if (foundSubject == null) {
-                throw new CustomException("this Subject is not found");
-            }
-            if (is_Valid(updateSubject)) {
-                foundSubject.setScore(updateSubject.getScore());
-                foundSubject.setSubject_Name(updateSubject.getSubject_Name());
-                foundSubject.setNumber_of_lessons(updateSubject.getNumber_of_lessons());
-                foundSubject.setSubject_student_ID(updateSubject.getSubject_student_ID());
-            }
-            return subjectRepo.save(foundSubject);
-        } else if (updateSubject.getSubject_ID() == null && updateSubject.getStatus() == null) {
-            if (is_Valid(updateSubject)) {
-                updateSubject.setSubject_ID(UniqueID.getUUID());
-                return subjectRepo.save(updateSubject);
-            }
-        } else if (updateSubject.getSubject_ID() != null && updateSubject.getStatus() != null) {
-            deleteSubject(updateSubject.getSubject_ID());
-            return updateSubject;
+
+        List<Subject> subjectFromDb = subjectRepo.findAll();
+        List<Subject> foundLiSubject = subjectFromDb.stream()
+                .filter(subject -> subject.getStudentId()
+                        .equals(updateSubject.getStudentId())).toList();
+        Subject foundSubject = foundLiSubject.stream()
+                .filter(subject -> subject.getSubject_ID()
+                        .equals(updateSubject.getSubject_ID())).findFirst().orElse(null);
+        if (foundSubject == null) {
+            throw new CustomException("this Subject is not found");
         }
-        return updateSubject;
+        if (is_Valid(updateSubject, foundLiSubject)) {
+            foundSubject.setSubject_ID(foundSubject.getSubject_ID());
+            foundSubject.setScore(updateSubject.getScore());
+            foundSubject.setSubject_Name(updateSubject.getSubject_Name());
+            foundSubject.setNumber_of_lessons(updateSubject.getNumber_of_lessons());
+            foundSubject.setStudentId(updateSubject.getStudentId());
+        }
+        return subjectRepo.save(foundSubject);
     }
 
     @Override
-    public boolean is_Valid(Subject subject) {
-        List<Subject> foundSubjects = subjectRepo.findAll().stream()
-                .filter(subjectElement -> (
-                                subject.getSubject_student_ID()
-                                        .equals(subject.getSubject_student_ID()) &&
-                                        subject.getSubject_ID().equals(subject.getSubject_ID())
-                        )
-                ).toList();
+    public boolean is_Valid(Subject subject, List<Subject> subjectsFromDb) {
+        List<Subject> foundSubjects = subjectsFromDb.stream()
+                .filter(subjectElement -> subject.getSubject_Name().equals(subject.getSubject_Name())).toList();
         if (subject.getScore() < 0 || subject.getScore() > 10) {
             throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
         } else if (foundSubjects.size() > 0) {

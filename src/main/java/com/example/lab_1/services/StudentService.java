@@ -6,7 +6,7 @@ import com.example.lab_1.model.request.FilterRequestModel;
 import org.springframework.data.domain.Page;
 
 public interface StudentService {
-    Student addStudent(Student newStudent);
+    StudentDTO addStudent(StudentDTO newStudent);
 
     StudentDTO updateStudent(StudentDTO updatedStudent);
 

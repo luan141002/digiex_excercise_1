@@ -2,6 +2,8 @@ package com.example.lab_1.services;
 
 import com.example.lab_1.model.Subject;
 
+import java.util.List;
+
 public interface SubjectService {
     Subject addSubject(Subject newSubject);
 
@@ -11,5 +13,5 @@ public interface SubjectService {
 
     Subject getSubjectDetail(String id);
 
-    public boolean is_Valid(Subject subject);
+    public boolean is_Valid(Subject subject, List<Subject> subjectsFromDB);
 }

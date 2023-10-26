@@ -1,9 +1,6 @@
 package com.example.lab_1.controller;
 
 import com.example.lab_1.dto.StudentDTO;
-import com.example.lab_1.dto.SubjectDTO;
-import com.example.lab_1.model.Student;
-import com.example.lab_1.model.Subject;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
 import com.example.lab_1.services.StudentService;
@@ -82,15 +79,9 @@ public class StudentController {
     // Path : /student/addStudent
     @PostMapping("/addStudent")
     ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent) throws Exception {
-        if (newStudent.getLstSub().size() > 0) {
-            for (SubjectDTO subject :
-                    newStudent.getLstSub()) {
-                subjectService.addSubject(new Subject(subject));
-            }
-        }
+
         return ResponseEntity.status(HttpStatus.OK).body(
-                new StudentDTO(studentService.addStudent(new Student(newStudent)), newStudent
-                        .getLstSub().stream().map(Subject::new).toList())
+                studentService.addStudent(newStudent)
         );
     }
 

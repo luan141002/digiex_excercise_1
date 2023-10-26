@@ -45,7 +45,7 @@ public class StudentDTO {
         this.stuEmail = student.getStudent_Email();
         this.stuPhone = student.getStudent_Phone();
         this.stuGender = student.getStudent_Gender();
-        this.clasID = student.getStudent_Class_ID();
+        this.clasID = student.getClassId();
         this.stuDob = student.getStudent_Dob();
         this.stuAddress = student.getStudent_Address();
         this.lstSub = subjectList.stream().map(subject -> new SubjectDTO(subject)).toList();
@@ -64,7 +64,7 @@ public class StudentDTO {
         this.stuEmail = student.getStudent_Email();
         this.stuPhone = student.getStudent_Phone();
         this.stuGender = student.getStudent_Gender();
-        this.clasID = student.getStudent_Class_ID();
+        this.clasID = student.getClassId();
         this.stuDob = student.getStudent_Dob();
         this.stuAddress = student.getStudent_Address();
 
