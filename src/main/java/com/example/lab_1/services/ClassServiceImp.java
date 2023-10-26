@@ -6,6 +6,7 @@ import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.dto.ClassDTO;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.model.ClassEntity;
+import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
 import com.example.lab_1.repository.ClassRepo;
 import com.example.lab_1.repository.StudentRepo;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -68,31 +70,38 @@ public class ClassServiceImp implements ClassService {
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
     public void deleteClass(String id) {
-        stuRepo.findAll().stream().forEach(student -> {
-            if (student.getStudent_Class_ID() != null && student.getStudent_Class_ID().equals(id)) {
-                if (stuRepo.getAllStuByClassID(id) != null) {
-                    subjectRepo.deleteAllByStuID(student.getStudent_ID());
-                }
-                if (stuRepo.getAllStuByClassID(id) != null) {
-                    stuRepo.deleteAllByClassID(id);
-                }
-            }
-        });
+        try {
+            List<Student> liStudentByClassId = stuRepo.getAllStuByClassID(id);
+            subjectRepo.deleteAllByStudentIdIn(liStudentByClassId.stream().map(Student::getStudent_ID).toList());
+            stuRepo.deleteAll(liStudentByClassId);
+            classRepo.deleteById(id);
+        } catch (Exception ex) {
+            throw new CustomException(ex.getMessage());
+        }
 
-        classRepo.deleteById(id);
     }
 
     @Override
     public Long getClassDetail(String id) {
-        return stuRepo.findAll().stream().filter(student -> student.getStudent_Class_ID() != null && student.getStudent_Class_ID().equals(id)).count();
+        return stuRepo.findAll().stream().filter(student -> student.getClassId() != null && student.getClassId().equals(id)).count();
     }
 
     @Override
     public List<ClassDTO> getAllClass() {
-        List<ClassDTO> dtoList = classRepo.findAll().stream().map(classEntity -> {
-            List<StudentDTO> lstStuDTO = stuRepo.getAllStuByClassID(classEntity.getClass_ID()).stream().map(student -> {
-                List<Subject> lstSub = subjectRepo.getAllSubByStuID(student.getStudent_ID());
+
+        List<ClassEntity> classes = classRepo.findAll();
+        List<Student> students = stuRepo.findAllByClassIdIn(classes.stream().map(ClassEntity::getClass_ID).toList());
+        List<Subject> subjects = subjectRepo.findAllByStudentIdIn(students.stream().map(Student::getStudent_ID).toList());
+
+        return classes.stream().map(classEntity -> {
+            List<Student> liStudentByClassId = students.stream()
+                    .filter(student -> student.getClassId().equals(classEntity.getClass_ID())).toList();
+            List<StudentDTO> lstStuDTO = liStudentByClassId.stream().map(student -> {
+                List<Subject> lstSub = subjects.stream()
+                        .filter(subject -> subject.getStudentId()
+                                .equals(student.getStudent_ID())).toList();
                 StudentDTO studentDTO = new StudentDTO(student, lstSub);
                 logger.info(String.valueOf(studentDTO));
                 return new StudentDTO(student, lstSub);
@@ -101,7 +110,6 @@ public class ClassServiceImp implements ClassService {
             logger.info(String.valueOf(classDTO));
             return classDTO;
         }).toList();
-        return dtoList;
     }
 
     @Override
@@ -110,11 +118,11 @@ public class ClassServiceImp implements ClassService {
         logger.info(String.valueOf(type));
         List<ClassEntity> listClass = classRepo.findAll();
         listClass = switch (type) {
-            case (1) -> listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Max_Student))
-                    .collect(Collectors.toList());
+            case (1) ->
+                    listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Max_Student)).collect(Collectors.toList());
             case 2 -> classRepo.findStudentsByName(className);
-            default -> listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Name))
-                    .collect(Collectors.toList());
+            default ->
+                    listClass.stream().sorted(Comparator.comparing(ClassEntity::getClass_Name)).collect(Collectors.toList());
         };
         return listClass;
     }

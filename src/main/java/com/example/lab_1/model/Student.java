@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ import java.util.Date;
 @Entity(name = "student")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EntityListeners(AuditingEntityListener.class)
+@SQLDelete(sql = "UPDATE student  SET status = 'INACTIVE' WHERE stu_id = ?")
 public class Student extends BaseEntity {
     @Id
     @Column(name = "stu_id", length = 32)
@@ -41,7 +43,7 @@ public class Student extends BaseEntity {
     private String student_Address;
 
     @Column(name = "class_id")
-    private String student_Class_ID;
+    private String classId;
 
 
     public Student(StudentDTO studentDTO) {
@@ -53,7 +55,7 @@ public class Student extends BaseEntity {
         this.student_Gender = studentDTO.getStuGender();
         this.student_Dob = studentDTO.getStuDob();
         this.student_Address = studentDTO.getStuAddress();
-        this.student_Class_ID = studentDTO.getClasID();
+        this.classId = studentDTO.getClasID();
     }
 
     public boolean areAllFieldsNull() {
@@ -65,6 +67,6 @@ public class Student extends BaseEntity {
                 && student_Gender == null
                 && student_Dob == null
                 && student_Address == null
-                && student_Class_ID == null;
+                && classId == null;
     }
 }

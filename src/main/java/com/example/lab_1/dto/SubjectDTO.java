@@ -31,7 +31,7 @@ public class SubjectDTO {
         this.subName = subject.getSubject_Name();
         this.numberOfLessons = subject.getNumber_of_lessons();
         this.score = subject.getScore();
-        this.subStu = subject.getSubject_student_ID();
+        this.subStu = subject.getStudentId();
         this.subStatus = subject.getStatus().toString();
     }
 }

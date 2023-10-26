@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class StudentServiceImp implements StudentService {
     @Autowired
     private SubjectService subjectService;
 
-    public static boolean areElementsUnique(List<Subject> inputList) {
+    public boolean areElementsUnique(List<Subject> inputList) {
         Set<String> seenElements = new HashSet<>();
 
         for (Subject element : inputList) {
@@ -46,17 +47,36 @@ public class StudentServiceImp implements StudentService {
     }
 
     @Override
-    public Student addStudent(Student newStudent) {
-        if (is_Student_Valid(newStudent)) {
+    public StudentDTO addStudent(StudentDTO newStudent) {
+        if (!is_Student_Valid(new Student(newStudent))) {
             throw new CustomException("Cant save this student");
         }
-        newStudent.setStudent_ID(UniqueID.getUUID());
-        return studentRepo.save(newStudent);
+        newStudent.setStuID(UniqueID.getUUID());
+        List<Subject> liSubjectToSave = new ArrayList<>();
+        if (newStudent.getLstSub().size() > 0) {
+            if (newStudent.getLstSub().size() < 3 || newStudent.getLstSub().size() > 5) {
+                throw new CustomException("This List is exceed the limit range");
+            }
+            for (SubjectDTO subject : newStudent.getLstSub()) {
+                if (subject.getScore() < 0 || subject.getScore() > 10) {
+                    throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
+                }
+                subject.setSubStu(newStudent.getStuID());
+                subject.setSubID(UniqueID.getUUID());
+                liSubjectToSave.add(new Subject(subject));
+            }
+            boolean isUnique = areElementsUnique(liSubjectToSave);
+            if (!isUnique) {
+                throw new CustomException("There is some subject has the same name");
+            }
+            subjectRepo.saveAll(liSubjectToSave);
+        }
+
+
+        return new StudentDTO(studentRepo.save(new Student(newStudent)), liSubjectToSave);
     }
 
     private boolean is_Student_Valid(Student newStudent) {
-        int subCount = subjectRepo.getAllSubByStuID(newStudent.getStudent_ID()).size();
-        Boolean isUnique = areElementsUnique(subjectRepo.getAllSubByStuID(newStudent.getStudent_ID()));
         // check whether student email is unique or not
         List<Student> foundStudent = studentRepo.findAll().stream()
                 .filter(student -> (
@@ -65,10 +85,7 @@ public class StudentServiceImp implements StudentService {
                         )
                 ).toList();
         // check all above conditions
-        if (subCount < 3 || subCount > 5) {
-            throw new CustomException("this student exceeds subject limit");
-        }
-        if (foundStudent.size() > 0 || !isUnique) {
+        if (foundStudent.size() > 0) {
             throw new CustomException("this student's email already existed");
         }
         return true;
@@ -98,7 +115,7 @@ public class StudentServiceImp implements StudentService {
                             subject.getSubID() != null
                                     && subject.getSubStatus() != null).toList();
             int sizeLimit = listSubject.size() + List_Create_Subject.size() - List_Delete_Subject.size();
-            if (sizeLimit > 5) {
+            if (sizeLimit < 3 || sizeLimit > 5) {
                 throw new CustomException("Your Subject list exceed the limit");
             }
 
@@ -108,7 +125,7 @@ public class StudentServiceImp implements StudentService {
             if (!List_Update_Subject.isEmpty()) {
                 List<Subject> listUpdatedSubject = listSubject.stream().map(subject -> {
                             Subject testSubject = SavingSubjectChange(subject,
-                                    List_Update_Subject.stream().map(subjectElement -> new Subject(subjectElement)).toList());
+                                    List_Update_Subject.stream().map(Subject::new).toList());
                             if (testSubject == null) {
                                 return subject;
                             }
@@ -122,7 +139,7 @@ public class StudentServiceImp implements StudentService {
                 subject.setSubStu(updateStudent.getStuID());
                 return new Subject(subject);
             }).toList());
-            subjectRepo.deleteAll(List_Delete_Subject.stream().map(subject -> new Subject(subject)).toList());
+            subjectRepo.deleteAll(List_Delete_Subject.stream().map(Subject::new).toList());
 
             return new StudentDTO(
                     Student_info, subjectRepo
@@ -156,8 +173,8 @@ public class StudentServiceImp implements StudentService {
         if (studentInfo.getStudent_Gender() != null) {
             foundStudent.setStudent_Gender(studentInfo.getStudent_Gender());
         }
-        if (studentInfo.getStudent_Class_ID() != null) {
-            foundStudent.setStudent_Class_ID(studentInfo.getStudent_Class_ID());
+        if (studentInfo.getClassId() != null) {
+            foundStudent.setClassId(studentInfo.getClassId());
         }
         studentRepo.save(foundStudent);
     }
@@ -183,7 +200,7 @@ public class StudentServiceImp implements StudentService {
             subject.setNumber_of_lessons(foundSubject.getNumber_of_lessons());
         }
         if (foundSubject.getScore() != null) {
-            subject.setSubject_student_ID(foundSubject.getSubject_student_ID());
+            subject.setStudentId(foundSubject.getStudentId());
         }
         if (subject.getScore() < 0 || subject.getScore() > 10) {
             throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
@@ -191,18 +208,6 @@ public class StudentServiceImp implements StudentService {
         return foundSubject;
     }
 
-    private void StudentMapper(Student foundStudent, StudentDTO updateStudent) {
-
-        foundStudent.setStudent_First_Name(updateStudent.getStuFirstName());
-        foundStudent.setStudent_Last_Name(updateStudent.getStuLastName());
-        foundStudent.setStudent_Address(updateStudent.getStuAddress());
-        foundStudent.setStudent_Email(updateStudent.getStuEmail());
-        foundStudent.setStudent_Dob(updateStudent.getStuDob());
-        foundStudent.setStudent_Class_ID(updateStudent.getClasID());
-        foundStudent.setStudent_Gender(updateStudent.getStuGender());
-        foundStudent.setStudent_Phone(updateStudent.getStuPhone());
-
-    }
 
     @Override
     public void deleteStudent(String id) {
@@ -232,7 +237,7 @@ public class StudentServiceImp implements StudentService {
         ) {
             throw new CustomException("sort field is invalid");
         }
-        if (requestModel.getGender() != "female" && requestModel.getGender() != "male") {
+        if (!requestModel.getGender().equalsIgnoreCase("female") && !requestModel.getGender().equalsIgnoreCase("male")) {
             requestModel.setGender("ale");
         }
         logger.info(requestModel.getSortType());
@@ -260,35 +265,6 @@ public class StudentServiceImp implements StudentService {
                 requestModel.getGender(), sortedBy);
         return lstStudent;
     }
-
-
-//    public Page<Student> findByClassAndSearchKeyWord(FilterRequestModel requestModel){
-////        Pageable sortedBy = PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuFirstName")));
-////        switch (options){
-////            case(1):
-////                sortedBy =
-////                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuFirstName")));
-////                break;
-////            case(2):
-////                sortedBy =
-////                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuLastName")));
-////                break;
-////            case(3):
-////                sortedBy =
-////                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuEmail")));
-////                break;
-////            case(4):
-////                sortedBy =
-////                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuDob")));
-////                break;
-////            case(5):
-////                sortedBy =
-////                        PageRequest.of(0, 3, Sort.by(Sort.Order.asc("stuPhone")));
-////                break;
-////        };
-//        Page<Student> lstStudent = studentRepo.findStudentsByName(id,searchKey,sortedBy);
-//        return lstStudent;
-//    }
 
 
 }
