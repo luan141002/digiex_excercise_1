@@ -8,6 +8,7 @@ import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.model.ClassEntity;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
+import com.example.lab_1.model.request.CreateClassRequest;
 import com.example.lab_1.repository.ClassRepo;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
@@ -33,20 +34,19 @@ public class ClassServiceImp implements ClassService {
     private SubjectRepo subjectRepo;
 
     @Override
-    public ClassEntity addClass(ClassEntity newClass) {
-        if (classRepo.findAll().stream().filter(classEntity -> classEntity.getClass_Name().equals(newClass.getClass_Name().trim())).count() > 0) {
+    public ClassEntity addClass(CreateClassRequest newClass) {
+        if (classRepo.findAll().stream().filter(
+                classEntity -> classEntity.getClass_Name()
+                        .equals(newClass.getName().trim()))
+                            .count() > 0) {
             throw new CustomException("this class name already existed");
         }
-        if (newClass.getClass_Max_Student() >= 20) {
-            throw new CustomException("this student quantity is over 20 student");
-        }
-        if (newClass.getStatus() == null) {
-            newClass.setStatus(Status.ACTIVE);
-        }
+
         ClassEntity classToSaveEntity = new ClassEntity();
         classToSaveEntity.setClass_ID(UniqueID.getUUID());
-        classToSaveEntity.setClass_Name(newClass.getClass_Name());
-        classToSaveEntity.setClass_Max_Student(newClass.getClass_Max_Student());
+        classToSaveEntity.setClass_Name(newClass.getName());
+        classToSaveEntity.setStatus(Status.ACTIVE);
+        classToSaveEntity.setClass_Max_Student(newClass.getMaxStudent());
         return classRepo.save(classToSaveEntity);
     }
 

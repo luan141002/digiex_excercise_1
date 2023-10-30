@@ -5,6 +5,7 @@ import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.model.ClassEntity;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
+import com.example.lab_1.model.request.CreateClassRequest;
 import com.example.lab_1.model.request.FilterRequestModel;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,7 +82,7 @@ public class ClassController {
 
     // Path : /class/addClass
     @PostMapping("/addClass")
-    ResponseEntity<Object> addClass(@RequestBody ClassEntity newClass) {
+    ResponseEntity<Object> addClass(@RequestBody @Valid CreateClassRequest newClass) {
         // save and return new class
         return ResponseEntity.status(HttpStatus.OK).body(classService.addClass(newClass));
     }

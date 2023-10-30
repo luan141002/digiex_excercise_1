@@ -1,6 +1,7 @@
 package com.example.lab_1.controller;
 
 import com.example.lab_1.dto.StudentDTO;
+import com.example.lab_1.model.request.CreateStudentRequest;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
 import com.example.lab_1.services.StudentService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 
@@ -78,7 +80,7 @@ public class StudentController {
 
     // Path : /student/addStudent
     @PostMapping("/addStudent")
-    ResponseEntity<Object> addStudent(@RequestBody StudentDTO newStudent) throws Exception {
+    ResponseEntity<Object> addStudent(@RequestBody @Valid CreateStudentRequest newStudent) throws Exception {
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 studentService.addStudent(newStudent)

@@ -2,11 +2,12 @@ package com.example.lab_1.services;
 
 import com.example.lab_1.dto.ClassDTO;
 import com.example.lab_1.model.ClassEntity;
+import com.example.lab_1.model.request.CreateClassRequest;
 
 import java.util.List;
 
 public interface ClassService {
-    ClassEntity addClass(ClassEntity newClass);
+    ClassEntity addClass(CreateClassRequest newClass);
 
     ClassEntity updateClass(ClassEntity updatedClass);
 

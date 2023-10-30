@@ -1,11 +1,14 @@
 package com.example.lab_1.services;
 
+import com.example.lab_1.common.enums.Status;
 import com.example.lab_1.common.utils.UniqueID;
 import com.example.lab_1.controller.CustomException;
 import com.example.lab_1.dto.StudentDTO;
 import com.example.lab_1.dto.SubjectDTO;
 import com.example.lab_1.model.Student;
 import com.example.lab_1.model.Subject;
+import com.example.lab_1.model.request.CreateStudentRequest;
+import com.example.lab_1.model.request.CreateSubjectRequest;
 import com.example.lab_1.model.request.FilterRequestModel;
 import com.example.lab_1.repository.StudentRepo;
 import com.example.lab_1.repository.SubjectRepo;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,23 +51,25 @@ public class StudentServiceImp implements StudentService {
     }
 
     @Override
-    public StudentDTO addStudent(StudentDTO newStudent) {
-        if (!is_Student_Valid(new Student(newStudent))) {
-            throw new CustomException("Cant save this student");
+    public StudentDTO addStudent(CreateStudentRequest newStudent) {
+        Student newStudentToSave = studentMapping(newStudent);
+        if (!is_Student_Valid(newStudentToSave)){
+            throw new CustomException("student name cannot be duplicated");
         }
-        newStudent.setStuID(UniqueID.getUUID());
         List<Subject> liSubjectToSave = new ArrayList<>();
-        if (newStudent.getLstSub().size() > 0) {
-            if (newStudent.getLstSub().size() < 3 || newStudent.getLstSub().size() > 5) {
+        if (newStudent.getSubjectRequestList().size() > 0) {
+            if (newStudent.getSubjectRequestList().size() < 3 || newStudent.getSubjectRequestList().size() > 5) {
                 throw new CustomException("This List is exceed the limit range");
             }
-            for (SubjectDTO subject : newStudent.getLstSub()) {
-                if (subject.getScore() < 0 || subject.getScore() > 10) {
-                    throw new CustomException("subject's score exceed the limit for subject in this student's subject list");
-                }
-                subject.setSubStu(newStudent.getStuID());
-                subject.setSubID(UniqueID.getUUID());
-                liSubjectToSave.add(new Subject(subject));
+            for (CreateSubjectRequest subject : newStudent.getSubjectRequestList()) {
+                Subject subjectToSave = new Subject();
+                subjectToSave.setSubject_ID(UniqueID.getUUID());
+                subjectToSave.setSubject_Name(subject.getName());
+                subjectToSave.setScore(subject.getScore());
+                subjectToSave.setNumber_of_lessons(subject.getNumberOfLessons());
+                subjectToSave.setStudentId(newStudentToSave.getStudent_ID());
+                subjectToSave.setStatus(Status.ACTIVE);
+                liSubjectToSave.add(subjectToSave);
             }
             boolean isUnique = areElementsUnique(liSubjectToSave);
             if (!isUnique) {
@@ -73,9 +79,21 @@ public class StudentServiceImp implements StudentService {
         }
 
 
-        return new StudentDTO(studentRepo.save(new Student(newStudent)), liSubjectToSave);
+        return new StudentDTO(studentRepo.save(newStudentToSave), liSubjectToSave);
     }
-
+    private Student studentMapping (CreateStudentRequest newStudent){
+        Student newStudentToSave = new Student();
+        newStudentToSave.setStudent_ID(UniqueID.getUUID());
+        newStudentToSave.setStudent_Email(newStudent.getEmail());
+        newStudentToSave.setStudent_Phone(Integer.parseInt(newStudent.getPhoneNumber()));
+        newStudentToSave.setStudent_First_Name(newStudent.getFirstName());
+        newStudentToSave.setStudent_Last_Name(newStudent.getLastName());
+        newStudentToSave.setClassId(newStudent.getIdClass());
+        newStudentToSave.setStudent_Gender(newStudent.getGender());
+        newStudentToSave.setStudent_Dob(newStudent.getDob());
+        newStudentToSave.setStudent_Address(newStudent.getAddress());
+        return newStudentToSave;
+    }
     private boolean is_Student_Valid(Student newStudent) {
         // check whether student email is unique or not
         List<Student> foundStudent = studentRepo.findAll().stream()
